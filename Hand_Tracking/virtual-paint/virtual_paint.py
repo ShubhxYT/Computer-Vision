@@ -5,16 +5,20 @@ import numpy as np
 import math
 
 import sys
-sys.path.insert(0, 'D:/Codes/Computer Vision/Hand_Tracking/')
+sys.path.insert(0, 'Hand_Tracking/')
 import HandTrackingModule as htm
 
 RECTANGLE_COLOUR = (255, 0, 255)
 BRUSH_THICKNESS = 15
 ERASER_THICKNESS = 50
 TAP_ERASE = 5.0
-FOLDER_PATH = "D:/Codes/Computer Vision/Hand_Tracking/hand-paint/menu"
+FOLDER_PATH = "Hand_Tracking/virtual-paint/menu"
 
-myList = os.listdir(FOLDER_PATH)
+try :
+    myList = os.listdir(FOLDER_PATH)
+except Exception as e:
+    print(f"Folder not found : {e}")
+    exit()
 
 overlayList = []
 for imPath in myList:
@@ -51,15 +55,21 @@ while True :
         
         x1,y1 = lmList[8][1],lmList[8][2]
         x2,y2 = lmList[12][1],lmList[12][2]
+        x3,y3 = lmList[16][1],lmList[16][2]
         
         OneFingerUp = False
         TwoFingerUp = False
+        ThreeFingerUp = False
         
         if y1 < lmList[8-2][2]:
             OneFingerUp=True
             if y2 < lmList[12-2][2]:
                 OneFingerUp = False
                 TwoFingerUp = True
+                if y3 < lmList[16-2][2]:
+                    OneFingerUp = False
+                    TwoFingerUp = False
+                    ThreeFingerUp = True
                 
         #taking out the length of between the fingers tips
         length =math.dist((int(lmList[8][1]),int(lmList[8][2])), (int(lmList[4][1]), int(lmList[4][2])))
@@ -81,7 +91,7 @@ while True :
                     #clearing the canvas painting
                     cv2.rectangle(img_canvas, (0, 0), (wCam, hCam), (0,0,0), cv2.FILLED)
                 
-              
+        #drawing the points    
         if OneFingerUp:
             tap = 0 #resseting tap_counter timer
             if xp == 0 and yp == 0:
@@ -94,7 +104,8 @@ while True :
                 cv2.line(img_canvas, (xp, yp), (x1, y1), draw_color, BRUSH_THICKNESS)
             #updating the previous points
             xp, yp = x1, y1
-                       
+        
+        #checking for the colour selection              
         if TwoFingerUp:
             tap = 0
             xp, yp = 0,0
@@ -115,6 +126,17 @@ while True :
             if 1036<x1<1153 and 1036<x2<1153 and y1<125 and y2<125:
                 header = overlayList[3]
                 draw_color = (255, 255, 255) #white
+        
+        #using the eraser      
+        if ThreeFingerUp:
+            tap = 0
+            if xp == 0 and yp == 0:
+                xp, yp = x1, y1
+            # header = overlayList[3]
+            cv2.circle(img, (x2, y2), 33, (255, 255, 255), cv2.FILLED)
+            cv2.line(img_canvas, (xp, yp), (x2, y2), (0,0,0), ERASER_THICKNESS)
+            
+            xp, yp = x1, y1
             
     #making the grey canvas for all the colours         
     imgGray = cv2.cvtColor(img_canvas, cv2.COLOR_BGR2GRAY)
@@ -130,6 +152,7 @@ while True :
     # img = cv2.addWeighted(img, 0.5, img_canvas, 0.5, 0)
     
     cv2.imshow("Image", img)
-    cv2.waitKey(1)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
 
 
