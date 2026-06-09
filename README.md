@@ -228,4 +228,12 @@ Computer-Vision/
 
 ## Screenshots
 
-Screenshots unavailable — project requires GPU, YOLO model downloads, and webcam/video files with hardcoded Windows paths that don't resolve in CI/demo environments. Each module produces real-time annotated video output with bounding boxes, landmark skeletons, FPS counters, and tracking overlays.
+### Pose Estimation
+
+MediaPipe BlazePose with 33-landmark skeleton, FPS overlay, and elbow highlighting.
+
+![Pose Estimation Demo](assets/pose_estimation_demo.jpg)
+
+![Pose Estimation Back View](assets/pose_estimation_back.jpg)
+
+> Screenshots captured from video 3 and video 1 in `pose_tracking/videos/`. Other modules require GPU and YOLO model downloads — not capturable in CI.
